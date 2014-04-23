@@ -1,0 +1,19 @@
+{
+    "name": "kevintweber/gauges",
+    "description": "PHP wrapper for the gaug.es API.",
+    "keywords": ["gauges","api"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kevin Weber",
+            "email": "kevintweber@gmail.com"
+        }
+    ],
+    "require": {
+        "guzzlehttp/guzzle": "~4.0"
+    },
+    "autoload": {
+        "psr-4": {"kevintweber\\gauges\\": "src/Gauges"}
+    }
+}
