@@ -19,4 +19,4 @@ Kevin Weber - <kevintweber@gmail.com>
 License
 -------
 
-Monolog is licensed under the MIT License - see the `LICENSE` file for details
+kevintweber/gauges is licensed under the MIT License - see the `LICENSE` file for details
