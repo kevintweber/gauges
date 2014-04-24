@@ -11,7 +11,8 @@
         }
     ],
     "require": {
-        "guzzlehttp/guzzle": "~4.0"
+        "guzzlehttp/guzzle": "~4.0",
+        "psr/log": "~1.0"
     },
     "autoload": {
         "psr-4": {"kevintweber\\gauges\\": "src/Gauges"}
