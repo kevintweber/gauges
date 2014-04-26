@@ -30,7 +30,18 @@ Usage
 
 Consuming the Gauges API with this library is super simple.
 
-(todo)
+```php
+use kevintweber\Gauges\Request;
+
+// Create the request object.
+$request = new Request($your_gauges_api_token);
+
+// Make an API call.
+$response = $request->gauge_detail($gauge_id);
+
+// Do something with the response.
+$data = $response->json();
+```
 
 About
 =====

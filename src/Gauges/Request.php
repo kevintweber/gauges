@@ -219,6 +219,247 @@ class Request
     }
 
     /**
+     * List Shares
+     *
+     * Lists the people that have access to a Gauge.
+     *
+     * @param string id
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function list_shares($id)
+    {
+        return $this->makeApiCall(__FUNCTION__, 'GET', 'gauges/' . $id . '/shares');
+    }
+
+    /**
+     * Share a Gauge
+     *
+     * Shares gauge with a person by their email. Any valid email will work
+     * and will receive an invite even if there is no existing Gauges user
+     * with that email.
+     *
+     * @param string id
+     * @param string email
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function share_gauge($id, $email)
+    {
+        $params = array(
+            'email' => $email
+        );
+
+        return $this->makeApiCall(__FUNCTION__, 'POST', 'gauges/' . $id . '/shares',
+                                  $params);
+    }
+
+    /**
+     * Un-share Gauge
+     *
+     * @param string id
+     * @param string user_id
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function unshare_gauge($id, $user_id)
+    {
+        return $this->makeApiCall(__FUNCTION__, 'DELETE',
+                                  'gauges/' . $id . '/shares/' . $user_id);
+    }
+
+    /**
+     * Top Content
+     *
+     * Gets top content for a gauge, paginated.
+     *
+     * @param string id
+     * @param string date (Optional) Date in format YYYY-MM-DD
+     * @param string page (Optional)
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function top_content($id, $date = null, $page = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        if (isset($page)) {
+            $params['page'] = (int) $page;
+        }
+
+        return $this->makeApiCall(__FUNCTION__, 'GET',
+                                  'gauges/' . $id . '/content', $params);
+    }
+
+    /**
+     * Top Referrers
+     *
+     * Gets top referrers for a gauge, paginated.
+     *
+     * @param string id
+     * @param string date (Optional) Date in format YYYY-MM-DD
+     * @param string page (Optional)
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function top_referrers($id, $date = null, $page = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        if (isset($page)) {
+            $params['page'] = (int) $page;
+        }
+
+        return $this->makeApiCall(__FUNCTION__, 'GET',
+                                  'gauges/' . $id . '/referrers', $params);
+    }
+
+    /**
+     * Traffic
+     *
+     * Gets traffic for a gauge.
+     *
+     * @param string id
+     * @param string date (Optional) Date in format YYYY-MM-DD
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function traffic($id, $date = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        return $this->makeApiCall(__FUNCTION__, 'GET',
+                                  'gauges/' . $id . '/traffic', $params);
+    }
+
+    /**
+     * Browser Resolutions
+     *
+     * Gets browsers heights, browser widths, and screen widths for a gauge.
+     *
+     * @param string id
+     * @param string date (Optional) Date in format YYYY-MM-DD
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function browser_resolutions($id, $date = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        return $this->makeApiCall(__FUNCTION__, 'GET',
+                                  'gauges/' . $id . '/resolutions', $params);
+    }
+
+    /**
+     * Technology
+     *
+     * Gets browsers and platforms for a gauge.
+     *
+     * @param string id
+     * @param string date (Optional) Date in format YYYY-MM-DD
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function technology($id, $date = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        return $this->makeApiCall(__FUNCTION__, 'GET',
+                                  'gauges/' . $id . '/technology', $params);
+    }
+
+    /**
+     * Search Terms
+     *
+     * Gets search terms for a gauge, paginated.
+     *
+     * @param string id
+     * @param string date (Optional) Date in format YYYY-MM-DD
+     * @param string page (Optional)
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function search_terms($id, $date = null, $page = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        if (isset($page)) {
+            $params['page'] = (int) $page;
+        }
+
+        return $this->makeApiCall(__FUNCTION__, 'GET',
+                                  'gauges/' . $id . '/terms', $params);
+    }
+
+    /**
+     * Search Engines
+     *
+     * Gets search engines for a gauge.
+     *
+     * @param string id
+     * @param string date (Optional) Date in format YYYY-MM-DD
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function search_terms($id, $date = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        return $this->makeApiCall(__FUNCTION__, 'GET',
+                                  'gauges/' . $id . '/engines', $params);
+    }
+
+    /**
+     * Locations
+     *
+     * Gets locations for a gauge.
+     *
+     * @param string id
+     * @param string date (Optional) Date in format YYYY-MM-DD
+     *
+     * @return GuzzleHttp\Message\Response
+     */
+    public function search_terms($id, $date = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        return $this->makeApiCall(__FUNCTION__, 'GET',
+                                  'gauges/' . $id . '/locations', $params);
+    }
+
+    /**
      * Make the actual gauges API call.
      *
      * @param string $functionName The calling function name.
@@ -270,7 +511,7 @@ class Request
                 $message = 'successful.';
             } else {
                 $message = 'unsuccessful. (status=' . $response->getStatusCode() .
-                    ')'
+                    ')';
             }
 
             $this->logger->debug('Gauges (' . self::URL . '): ' . $functionName .
