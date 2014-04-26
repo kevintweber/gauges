@@ -15,6 +15,6 @@
         "psr/log": "~1.0"
     },
     "autoload": {
-        "psr-4": {"kevintweber\\gauges\\": "src/Gauges"}
+        "psr-4": {"Kevintweber\\Gauges\\": "src/Gauges"}
     }
 }

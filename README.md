@@ -1,12 +1,9 @@
 PHP Wrapper for the Gauges API
 ==============================
 
-[Gaug.es](http://get.gaug.es/)
-
-(todo)
-
-Documentation
-=============
+[Gauges] (http://get.gaug.es/) is a real-time website analytics service.
+This small library is designed to make consuming the
+[Gauges API] (http://get.gaug.es/documentation/) simple using PHP.
 
 Installation
 ------------
@@ -43,8 +40,8 @@ $response = $request->gauge_detail($gauge_id);
 $data = $response->json();
 ```
 
-About
-=====
+To understand what else you can do with the response object, please
+refer to the [Guzzle documentation] (http://guzzle.readthedocs.org/en/guzzle4/).
 
 Author
 ------

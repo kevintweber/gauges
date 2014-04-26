@@ -1,8 +1,9 @@
 <?php
 
-namespace kevintweber\Gauges;
+namespace Kevintweber\Gauges;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -11,6 +12,9 @@ use Psr\Log\LoggerInterface;
 class Request
 {
     const URL = 'https://secure.gaug.es';
+
+    /** @var ClientInterface */
+    protected $client;
 
     /** @var array */
     protected $httpDefaults;
@@ -32,9 +36,22 @@ class Request
                                 array $httpDefaults = array(),
                                 LoggerInterface $logger = null)
     {
+        $this->client = null;
         $this->httpDefaults = $httpDefaults;
         $this->logger = $logger;
         $this->token = $token;
+    }
+
+    /**
+     * Set a custom http client.
+     *
+     * Primarily used for testing.
+     *
+     * @param ClientInterface $client
+     */
+    public function setHttpClient(ClientInterface $client)
+    {
+        $this->client = $client;
     }
 
     /**
@@ -425,7 +442,7 @@ class Request
      *
      * @return GuzzleHttp\Message\Response
      */
-    public function search_terms($id, $date = null)
+    public function search_engines($id, $date = null)
     {
         $params = array();
 
@@ -447,7 +464,7 @@ class Request
      *
      * @return GuzzleHttp\Message\Response
      */
-    public function search_terms($id, $date = null)
+    public function locations($id, $date = null)
     {
         $params = array();
 
@@ -489,21 +506,23 @@ class Request
         }
 
         // Make API call.
-        $client = new Client(
-            array(
-                'base_url' => array(self::URL),
-                'defaults' => $this->httpDefaults
-            )
-        );
+        if ($this->client === null) {
+            $this->client = new Client(
+                array(
+                    'base_url' => array(self::URL),
+                    'defaults' => $this->httpDefaults
+                )
+            );
+        }
 
-        $request = $client->createRequest(
+        $request = $this->client->createRequest(
             $method,
             $path,
             array('headers' => array('X-Gauges-Token' => $this->token))
         );
         $request->setQuery($params);
 
-        $response = $client->send($request);
+        $response = $this->client->send($request);
 
         // Log the message (if the logger is present).
         if ($this->logger) {
