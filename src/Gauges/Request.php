@@ -4,7 +4,6 @@ namespace Kevintweber\Gauges;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Used to make Gauges API calls.
@@ -13,14 +12,11 @@ class Request
 {
     const URL = 'https://secure.gaug.es';
 
-    /** @var ClientInterface */
+    /** @var null|ClientInterface */
     protected $client;
 
     /** @var array */
     protected $httpDefaults;
-
-    /** @var LoggerInterface */
-    protected $logger;
 
     /** @var string */
     protected $token;
@@ -28,17 +24,14 @@ class Request
     /**
      * Constructor
      *
-     * @param string          $token        Your API token
-     * @param array           $httpDefaults See Guzzle documentation (proxy, etc.)
-     * @param LoggerInterface $logger       (Optional) A logging service.
+     * @param string $token        Your API token
+     * @param array  $httpDefaults See Guzzle documentation (proxy, etc.)
      */
     public function __construct($token,
-                                array $httpDefaults = array(),
-                                LoggerInterface $logger = null)
+                                array $httpDefaults = array())
     {
         $this->client = null;
         $this->httpDefaults = $httpDefaults;
-        $this->logger = $logger;
         $this->token = $token;
     }
 
@@ -509,7 +502,7 @@ class Request
         if ($this->client === null) {
             $this->client = new Client(
                 array(
-                    'base_url' => array(self::URL),
+                    'base_url' => self::URL,
                     'defaults' => $this->httpDefaults
                 )
             );
@@ -520,23 +513,10 @@ class Request
             $path,
             array('headers' => array('X-Gauges-Token' => $this->token))
         );
-        $request->setQuery($params);
-
-        $response = $this->client->send($request);
-
-        // Log the message (if the logger is present).
-        if ($this->logger) {
-            if ($response->getStatusCode() == 200) {
-                $message = 'successful.';
-            } else {
-                $message = 'unsuccessful. (status=' . $response->getStatusCode() .
-                    ')';
-            }
-
-            $this->logger->debug('Gauges (' . self::URL . '): ' . $functionName .
-                                 ' request ' . $message);
+        if (!empty($params)) {
+            $request->setQuery($params);
         }
 
-        return $response;
+        return $this->client->send($request);
     }
 }
