@@ -528,6 +528,6 @@ class Request
             $request->setQuery($params);
         }
 
-        return $this->client->send($request);
+        return $this->getHttpClient()->send($request);
     }
 }
