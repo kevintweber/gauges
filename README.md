@@ -33,6 +33,9 @@ use kevintweber\Gauges\Factory;
 // Create the request object.
 $request = Factory::createRequest($your_gauges_api_token);
 
+// Optionally, attach a PSR-3 logger.
+$request->attachLogger($logger);
+
 // Make an API call.
 $response = $request->gauge_detail($gauge_id);
 
@@ -44,27 +47,18 @@ This library utilizes the Guzzle 4 library to make the API requests.
 To understand what else you can do with the response object, please
 refer to the [Guzzle documentation] (http://guzzle.readthedocs.org/en/guzzle4/).
 
-Now let's add logging. There is a helper method to allow you to easily add
-a PSR-3 logger. Woot!
+If you want to get really fancy, you can access the HTTP client itself
+by calling:
 
 ```php
-use kevintweber\Gauges\Factory;
+$client = $request->getHttpClient();
 
-// Create the request object.
-$request = Factory::createRequest($your_gauges_api_token);
+// Do something with the client.
 
-// Now inject the logger.  (The format is optional.)
-$request->attachLogger($logger, $format);
+$request->setHttpClient($client);
 ```
 
-If you want to get really fancy, you can access the HTTP client's
-event system by calling:
-
-```php
-$emitter = $request->getClientEmitter();
-```
-
-The emitter is documented in detail in the
+The client is documented in detail in the
 [Guzzle documentation] (http://guzzle.readthedocs.org/en/guzzle4/).
 
 Author

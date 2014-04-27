@@ -17,11 +17,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         self::$testHandler = new TestHandler();
     }
 
-    public function testGetClientEmitter()
+    public function testGetSetHttpClient()
     {
         $request = $this->buildRequest(200);
-        $emitter = $request->getClientEmitter();
-        $this->assertInstanceOf('GuzzleHttp\Event\Emitter', $emitter);
+        $client = $request->getHttpClient();
+        $this->assertInstanceOf('GuzzleHttp\Client', $client);
+        $this->assertTrue($client->getDefaultOption('allow_redirects'));
+        $client->setDefaultOption('allow_redirects', false);
+        $request->setHttpClient($client);
+
+        $newClient = $request->getHttpClient();
+        $this->assertFalse($newClient->getDefaultOption('allow_redirects'));
     }
 
     public function testMe()

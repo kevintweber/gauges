@@ -39,6 +39,25 @@ class Request
     }
 
     /**
+     * Getter for the HTTP client.
+     *
+     * @return Client
+     */
+    public function getHttpClient()
+    {
+        if ($this->client === null) {
+            $this->client = new Client(
+                array(
+                    'base_url' => self::URL,
+                    'defaults' => $this->httpDefaults
+                )
+            );
+        }
+
+        return $this->client;
+    }
+
+    /**
      * Set a custom http client.
      *
      * Primarily used for testing.
@@ -51,49 +70,18 @@ class Request
     }
 
     /**
-     * Helper function for setting a custom logger.
+     * Helper function for attaching a custom logger.
      *
-     * @param LoggerInterface $logger
+     * @param LoggerInterface  $logger
+     * @param string|Formatter $format (Optional)
      */
     public function attachLogger(LoggerInterface $logger, $format = null)
     {
-        if ($format === null) {
-            $format = Formatter::CLF;
-        }
-
         $logSubscriber = new LogSubscriber($logger, $format);
 
-        $emitter = $this->getClientEmitter();
-        $emitter->attach($logSubscriber);
-    }
+        $this->getHttpClient()->getEmitter()->attach($logSubscriber);
 
-    /**
-     * Lazily create the default client if it hasn't already been created.
-     */
-    protected function createDefaultClient()
-    {
-        $this->client = new Client(
-            array(
-                'base_url' => self::URL,
-                'defaults' => $this->httpDefaults
-            )
-        );
-    }
-
-    /**
-     * Emitter access.
-     *
-     * The primary extension point for this class.
-     *
-     * @return EmitterInterface
-     */
-    public function getClientEmitter()
-    {
-        if ($this->client === null) {
-            $this->createDefaultClient();
-        }
-
-        return $this->client->getEmitter();
+        return $this;
     }
 
     /**
@@ -522,26 +510,16 @@ class Request
                                    $path,
                                    array $params = array())
     {
-        // Validate method.
+        // Format method.
         $method = strtoupper($method);
-        if ($method != 'GET' &&
-            $method != 'POST' &&
-            $method != 'PUT' &&
-            $method != 'DELETE') {
-            throw new \InvalidArgumentException('Invalid method: ' . $method);
-        }
 
-        // Validate path.
+        // Format path.
         if ($path[0] != '/') {
             $path = '/' . $path;
         }
 
         // Make API call.
-        if ($this->client === null) {
-            $this->createDefaultClient();
-        }
-
-        $request = $this->client->createRequest(
+        $request = $this->getHttpClient()->createRequest(
             $method,
             $path,
             array('headers' => array('X-Gauges-Token' => $this->token))

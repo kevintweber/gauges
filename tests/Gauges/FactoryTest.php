@@ -6,13 +6,13 @@ use GuzzleHttp\Message\Response;
 use GuzzleHttp\Stream\Stream;
 use Kevintweber\Gauges\Factory;
 use Monolog\Logger;
-use Monolog\Handler\TestHandler;
 
 class FactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreateRequest()
     {
-        $request = Factory::createRequest('fake-token');
+        $logger = new Logger('testing');
+        $request = Factory::createRequest('fake-token', array(), $logger);
         $this->assertInstanceOf('Kevintweber\Gauges\Request', $request);
     }
 
@@ -21,7 +21,6 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $response = new Response(200, array(),
                                  Stream::factory('{"test":"fake"}'));
         $request = Factory::createMockRequest($response);
-
         $this->assertInstanceOf('Kevintweber\Gauges\Request', $request);
     }
 }

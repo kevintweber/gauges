@@ -19,19 +19,15 @@ class Factory
      * @return Request
      */
     public static function createRequest($token,
-                                         array $httpDefaults = array())
+                                         array $httpDefaults = array(),
+                                         LoggerInterface $logger = null,
+                                         $format = null)
     {
-        // Create client.
-        $client = new Client(
-            array(
-                'base_url' => Request::URL,
-                'defaults' => $httpDefaults
-            )
-        );
-
-        // Create request.
         $request = new Request($token, $httpDefaults);
-        $request->setHttpClient($client);
+
+        if ($logger instanceof LoggerInterface) {
+            $request->attachLogger($logger, $format);
+        }
 
         return $request;
     }
