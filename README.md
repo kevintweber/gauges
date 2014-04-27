@@ -28,7 +28,7 @@ Usage
 Consuming the Gauges API with this library is super simple.
 
 ```php
-use kevintweber\Gauges\Factory;
+use Kevintweber\Gauges\Factory;
 
 // Create the request object.
 $request = Factory::createRequest($your_gauges_api_token);
