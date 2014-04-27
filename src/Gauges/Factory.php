@@ -5,8 +5,6 @@ namespace Kevintweber\Gauges;
 use GuzzleHttp\Adapter\MockAdapter;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\Response;
-use GuzzleHttp\Subscriber\Log\Formatter;
-use GuzzleHttp\Subscriber\Log\LogSubscriber;
 use Psr\Log\LoggerInterface;
 
 class Factory
@@ -21,9 +19,7 @@ class Factory
      * @return Request
      */
     public static function createRequest($token,
-                                         array $httpDefaults = array(),
-                                         LoggerInterface $logger = null,
-                                         $format = null)
+                                         array $httpDefaults = array())
     {
         // Create client.
         $client = new Client(
@@ -32,18 +28,6 @@ class Factory
                 'defaults' => $httpDefaults
             )
         );
-
-        // Attaching logging subscriber (if available).
-        if ($logger !== null) {
-            if ($format === null) {
-                $format = Formatter::CLF;
-            }
-
-            $subscriber = new LogSubscriber($logger, $format);
-
-            $emitter = $client->getEmitter();
-            $emitter->attach($subscriber);
-        }
 
         // Create request.
         $request = new Request($token, $httpDefaults);
@@ -59,9 +43,7 @@ class Factory
      *
      * @return Request
      */
-    static public function createMockRequest(Response $response,
-                                             LoggerInterface $logger = null,
-                                             $format = null)
+    public static function createMockRequest(Response $response)
     {
         // Create client.
         $client = new Client(
@@ -70,18 +52,6 @@ class Factory
                 'base_url' => Request::URL
             )
         );
-
-        // Attaching logging subscriber (if available).
-        if ($logger !== null) {
-            if ($format === null) {
-                $format = Formatter::DEBUG;
-            }
-
-            $subscriber = new LogSubscriber($logger, $format);
-
-            $emitter = $client->getEmitter();
-            $emitter->attach($subscriber);
-        }
 
         $request = new Request('fake_token');
         $request->setHttpClient($client);

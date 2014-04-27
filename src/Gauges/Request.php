@@ -4,6 +4,9 @@ namespace Kevintweber\Gauges;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Subscriber\Log\Formatter;
+use GuzzleHttp\Subscriber\Log\LogSubscriber;
+use Psr\Log\LoggerInterface;
 
 /**
  * Used to make Gauges API calls.
@@ -47,6 +50,26 @@ class Request
         $this->client = $client;
     }
 
+    /**
+     * Helper function for setting a custom logger.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function attachLogger(LoggerInterface $logger, $format = null)
+    {
+        if ($format === null) {
+            $format = Formatter::CLF;
+        }
+
+        $logSubscriber = new LogSubscriber($logger, $format);
+
+        $emitter = $this->getClientEmitter();
+        $emitter->attach($logSubscriber);
+    }
+
+    /**
+     * Lazily create the default client if it hasn't already been created.
+     */
     protected function createDefaultClient()
     {
         $this->client = new Client(

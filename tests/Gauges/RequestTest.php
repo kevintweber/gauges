@@ -396,7 +396,10 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logger = new Logger('testing');
         $logger->pushHandler(self::$testHandler);
 
-        return Factory::createMockRequest($response, $logger, '{method}');
+        $request = Factory::createMockRequest($response);
+        $request->attachLogger($logger, '{method}');
+
+        return $request;
     }
 
     /**

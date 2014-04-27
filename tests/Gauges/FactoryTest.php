@@ -16,24 +16,12 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Kevintweber\Gauges\Request', $request);
     }
 
-    public function testCreateRequestWithLogger()
-    {
-        $logger = new Logger('testing');
-        $logger->pushHandler(new TestHandler());
-
-        $request = Factory::createRequest('fake-token', array(), $logger);
-        $this->assertInstanceOf('Kevintweber\Gauges\Request', $request);
-    }
-
-    public function testCreateMockRequestWithLogger()
+    public function testCreateMockRequest()
     {
         $response = new Response(200, array(),
                                  Stream::factory('{"test":"fake"}'));
+        $request = Factory::createMockRequest($response);
 
-        $logger = new Logger('testing');
-        $logger->pushHandler(new TestHandler());
-
-        $request = Factory::createMockRequest($response, $logger);
         $this->assertInstanceOf('Kevintweber\Gauges\Request', $request);
     }
 }
