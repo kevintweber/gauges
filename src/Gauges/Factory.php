@@ -33,9 +33,6 @@ class Factory
             )
         );
 
-        // Create request.
-        $request = new Request($token, $httpDefaults);
-
         // Attaching logging subscriber (if available).
         if ($logger !== null) {
             if ($format === null) {
@@ -48,7 +45,8 @@ class Factory
             $emitter->attach($subscriber);
         }
 
-        // Inject the client into the request.
+        // Create request.
+        $request = new Request($token, $httpDefaults);
         $request->setHttpClient($client);
 
         return $request;
@@ -61,7 +59,9 @@ class Factory
      *
      * @return Request
      */
-    static public function getMockingRequest(Response $response)
+    static public function createMockRequest(Response $response,
+                                             LoggerInterface $logger = null,
+                                             $format = null)
     {
         // Create client.
         $client = new Client(
@@ -70,6 +70,18 @@ class Factory
                 'base_url' => Request::URL
             )
         );
+
+        // Attaching logging subscriber (if available).
+        if ($logger !== null) {
+            if ($format === null) {
+                $format = Formatter::DEBUG;
+            }
+
+            $subscriber = new LogSubscriber($logger, $format);
+
+            $emitter = $client->getEmitter();
+            $emitter->attach($subscriber);
+        }
 
         $request = new Request('fake_token');
         $request->setHttpClient($client);

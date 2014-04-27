@@ -47,6 +47,32 @@ class Request
         $this->client = $client;
     }
 
+    protected function createDefaultClient()
+    {
+        $this->client = new Client(
+            array(
+                'base_url' => self::URL,
+                'defaults' => $this->httpDefaults
+            )
+        );
+    }
+
+    /**
+     * Emitter access.
+     *
+     * The primary extension point for this class.
+     *
+     * @return EmitterInterface
+     */
+    public function getClientEmitter()
+    {
+        if ($this->client === null) {
+            $this->createDefaultClient();
+        }
+
+        return $this->client->getEmitter();
+    }
+
     /**
      * Get Your Information
      *
@@ -56,7 +82,7 @@ class Request
      */
     public function me()
     {
-        return $this->makeApiCall(__FUNCTION__, 'GET', 'me');
+        return $this->makeApiCall('GET', 'me');
     }
 
     /**
@@ -81,7 +107,7 @@ class Request
             $params['last_name'] = (string) $last_name;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'PUT', 'me', $params);
+        return $this->makeApiCall('PUT', 'me', $params);
     }
 
     /**
@@ -93,7 +119,7 @@ class Request
      */
     public function list_clients()
     {
-        return $this->makeApiCall(__FUNCTION__, 'GET', 'clients');
+        return $this->makeApiCall('GET', 'clients');
     }
 
     /**
@@ -114,7 +140,7 @@ class Request
             $params['description'] = (string) $description;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'POST', 'clients', $params);
+        return $this->makeApiCall('POST', 'clients', $params);
     }
 
     /**
@@ -128,7 +154,7 @@ class Request
      */
     public function delete_client($id)
     {
-        return $this->makeApiCall(__FUNCTION__, 'DELETE', 'clients/' . $id);
+        return $this->makeApiCall('DELETE', 'clients/' . $id);
     }
 
     /**
@@ -146,7 +172,7 @@ class Request
             $params['page'] = (int) $page;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET', 'gauges', $params);
+        return $this->makeApiCall('GET', 'gauges', $params);
     }
 
     /**
@@ -171,7 +197,7 @@ class Request
             $params['allowed_hosts'] = (string) $allowedHosts;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'POST', 'gauges', $params);
+        return $this->makeApiCall('POST', 'gauges', $params);
     }
 
     /**
@@ -185,7 +211,7 @@ class Request
      */
     public function gauge_detail($id)
     {
-        return $this->makeApiCall(__FUNCTION__, 'GET', 'gauges/' . $id);
+        return $this->makeApiCall('GET', 'gauges/' . $id);
     }
 
     /**
@@ -211,7 +237,7 @@ class Request
             $params['allowed_hosts'] = (string) $allowedHosts;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'PUT', 'gauges/' . $id, $params);
+        return $this->makeApiCall('PUT', 'gauges/' . $id, $params);
     }
 
     /**
@@ -225,7 +251,7 @@ class Request
      */
     public function delete_gauge($id)
     {
-        return $this->makeApiCall(__FUNCTION__, 'DELETE', 'gauges/' . $id);
+        return $this->makeApiCall('DELETE', 'gauges/' . $id);
     }
 
     /**
@@ -233,13 +259,13 @@ class Request
      *
      * Lists the people that have access to a Gauge.
      *
-     * @param string id
+     * @param string $id
      *
      * @return GuzzleHttp\Message\Response
      */
     public function list_shares($id)
     {
-        return $this->makeApiCall(__FUNCTION__, 'GET', 'gauges/' . $id . '/shares');
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/shares');
     }
 
     /**
@@ -249,8 +275,8 @@ class Request
      * and will receive an invite even if there is no existing Gauges user
      * with that email.
      *
-     * @param string id
-     * @param string email
+     * @param string $id
+     * @param string $email
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -260,22 +286,20 @@ class Request
             'email' => $email
         );
 
-        return $this->makeApiCall(__FUNCTION__, 'POST', 'gauges/' . $id . '/shares',
-                                  $params);
+        return $this->makeApiCall('POST', 'gauges/' . $id . '/shares', $params);
     }
 
     /**
      * Un-share Gauge
      *
-     * @param string id
-     * @param string user_id
+     * @param string $id
+     * @param string $user_id
      *
      * @return GuzzleHttp\Message\Response
      */
     public function unshare_gauge($id, $user_id)
     {
-        return $this->makeApiCall(__FUNCTION__, 'DELETE',
-                                  'gauges/' . $id . '/shares/' . $user_id);
+        return $this->makeApiCall('DELETE', 'gauges/' . $id . '/shares/' . $user_id);
     }
 
     /**
@@ -283,9 +307,9 @@ class Request
      *
      * Gets top content for a gauge, paginated.
      *
-     * @param string id
-     * @param string date (Optional) Date in format YYYY-MM-DD
-     * @param string page (Optional)
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param int    $page (Optional)
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -301,8 +325,7 @@ class Request
             $params['page'] = (int) $page;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET',
-                                  'gauges/' . $id . '/content', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/content', $params);
     }
 
     /**
@@ -310,9 +333,9 @@ class Request
      *
      * Gets top referrers for a gauge, paginated.
      *
-     * @param string id
-     * @param string date (Optional) Date in format YYYY-MM-DD
-     * @param string page (Optional)
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param int    $page (Optional)
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -328,8 +351,7 @@ class Request
             $params['page'] = (int) $page;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET',
-                                  'gauges/' . $id . '/referrers', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/referrers', $params);
     }
 
     /**
@@ -337,8 +359,8 @@ class Request
      *
      * Gets traffic for a gauge.
      *
-     * @param string id
-     * @param string date (Optional) Date in format YYYY-MM-DD
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -350,8 +372,7 @@ class Request
             $params['date'] = (string) $date;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET',
-                                  'gauges/' . $id . '/traffic', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/traffic', $params);
     }
 
     /**
@@ -359,8 +380,8 @@ class Request
      *
      * Gets browsers heights, browser widths, and screen widths for a gauge.
      *
-     * @param string id
-     * @param string date (Optional) Date in format YYYY-MM-DD
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -372,8 +393,7 @@ class Request
             $params['date'] = (string) $date;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET',
-                                  'gauges/' . $id . '/resolutions', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/resolutions', $params);
     }
 
     /**
@@ -381,8 +401,8 @@ class Request
      *
      * Gets browsers and platforms for a gauge.
      *
-     * @param string id
-     * @param string date (Optional) Date in format YYYY-MM-DD
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -394,8 +414,7 @@ class Request
             $params['date'] = (string) $date;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET',
-                                  'gauges/' . $id . '/technology', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/technology', $params);
     }
 
     /**
@@ -403,9 +422,9 @@ class Request
      *
      * Gets search terms for a gauge, paginated.
      *
-     * @param string id
-     * @param string date (Optional) Date in format YYYY-MM-DD
-     * @param string page (Optional)
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param int    $page (Optional)
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -421,8 +440,7 @@ class Request
             $params['page'] = (int) $page;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET',
-                                  'gauges/' . $id . '/terms', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/terms', $params);
     }
 
     /**
@@ -430,8 +448,8 @@ class Request
      *
      * Gets search engines for a gauge.
      *
-     * @param string id
-     * @param string date (Optional) Date in format YYYY-MM-DD
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -443,8 +461,7 @@ class Request
             $params['date'] = (string) $date;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET',
-                                  'gauges/' . $id . '/engines', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/engines', $params);
     }
 
     /**
@@ -452,8 +469,8 @@ class Request
      *
      * Gets locations for a gauge.
      *
-     * @param string id
-     * @param string date (Optional) Date in format YYYY-MM-DD
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
      *
      * @return GuzzleHttp\Message\Response
      */
@@ -465,8 +482,7 @@ class Request
             $params['date'] = (string) $date;
         }
 
-        return $this->makeApiCall(__FUNCTION__, 'GET',
-                                  'gauges/' . $id . '/locations', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/locations', $params);
     }
 
     /**
@@ -479,8 +495,7 @@ class Request
      *
      * @return GuzzleHttp\Message\Response
      */
-    protected function makeApiCall($functionName,
-                                   $method,
+    protected function makeApiCall($method,
                                    $path,
                                    array $params = array())
     {
@@ -500,12 +515,7 @@ class Request
 
         // Make API call.
         if ($this->client === null) {
-            $this->client = new Client(
-                array(
-                    'base_url' => self::URL,
-                    'defaults' => $this->httpDefaults
-                )
-            );
+            $this->createDefaultClient();
         }
 
         $request = $this->client->createRequest(
