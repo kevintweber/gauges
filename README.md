@@ -17,7 +17,7 @@ include this library:
 ```javascript
 {
     "require": {
-        "kevintweber/gauges": "~0.1"
+        "kevintweber/gauges": "~0.2"
     }
 }
 ```
@@ -43,9 +43,9 @@ $response = $request->gauge_detail($gauge_id);
 $data = $response->json();
 ```
 
-This library utilizes the Guzzle 4 library to make the API requests.
+This library utilizes the Guzzle 5 library to make the API requests.
 To understand what else you can do with the response object, please
-refer to the [Guzzle documentation] (http://guzzle.readthedocs.org/en/guzzle4/).
+refer to the [Guzzle documentation] (http://guzzle.readthedocs.org/en/latest/).
 
 If you want to get really fancy, you can access the HTTP client itself
 by calling:
@@ -59,7 +59,7 @@ $request->setHttpClient($client);
 ```
 
 The client is documented in detail in the
-[Guzzle documentation] (http://guzzle.readthedocs.org/en/guzzle4/).
+[Guzzle documentation] (http://guzzle.readthedocs.org/en/latest/).
 
 Author
 ------
