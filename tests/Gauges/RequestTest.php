@@ -54,6 +54,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'PUT');
 
+        $request = $this->buildRequest(200);
         $response = $request->update_me(null, 'Weber');
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/me?last_name=Weber");
@@ -83,6 +84,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'POST');
 
+        $request = $this->buildRequest(200);
         $response = $request->create_client('asdf');
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/clients?description=asdf");
@@ -112,6 +114,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->list_gauges(3);
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges?page=3");
@@ -130,6 +133,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'POST');
 
+        $request = $this->buildRequest(200);
         $response = $request->create_gauge('asdf', 'America/New_York', 'all,none');
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges?title=asdf&tz=America%2FNew_York&allowed_hosts=all%2Cnone");
@@ -159,6 +163,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'PUT');
 
+        $request = $this->buildRequest(200);
         $response = $request->update_gauge('asdf1', 'asdf2',
                                            'America/New_York', 'all,none');
         $this->assertEquals($response->getEffectiveUrl(),
@@ -222,6 +227,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->top_content('asdf', '2014-01-01', 3);
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/content?date=2014-01-01&page=3");
@@ -229,6 +235,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->top_content('asdf', null, 2);
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/content?page=2");
@@ -247,6 +254,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->top_referrers('asdf', '2014-01-01', 3);
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/referrers?date=2014-01-01&page=3");
@@ -254,6 +262,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->top_referrers('asdf', null, 2);
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/referrers?page=2");
@@ -272,6 +281,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->traffic('asdf', '2014-01-01');
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/traffic?date=2014-01-01");
@@ -290,6 +300,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->browser_resolutions('asdf', '2014-01-01');
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/resolutions?date=2014-01-01");
@@ -308,6 +319,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->technology('asdf', '2014-01-01');
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/technology?date=2014-01-01");
@@ -326,6 +338,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->search_terms('asdf', '2014-01-01', 3);
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/terms?date=2014-01-01&page=3");
@@ -333,6 +346,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->search_terms('asdf', null, 3);
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/terms?page=3");
@@ -351,6 +365,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->search_engines('asdf', '2014-01-01');
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/engines?date=2014-01-01");
@@ -369,12 +384,22 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
 
+        $request = $this->buildRequest(200);
         $response = $request->locations('asdf', '2014-01-01');
         $this->assertEquals($response->getEffectiveUrl(),
                             "https://secure.gaug.es/gauges/asdf/locations?date=2014-01-01");
 
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET');
+    }
+
+    /**
+     * @expectedException GuzzleHttp\Exception\ServerException
+     */
+    public function testServerDown()
+    {
+        $request = $this->buildRequest(500);
+        $response = $request->me();
     }
 
     /**

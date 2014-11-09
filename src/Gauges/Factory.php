@@ -2,7 +2,7 @@
 
 namespace Kevintweber\Gauges;
 
-use GuzzleHttp\Adapter\MockAdapter;
+use GuzzleHttp\Subscriber\Mock;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\Response;
 use Psr\Log\LoggerInterface;
@@ -41,13 +41,16 @@ class Factory
      */
     public static function createMockRequest(Response $response)
     {
+        // Create mock.
+        $mock = new Mock(array($response));
+
         // Create client.
         $client = new Client(
             array(
-                'adapter'  => new MockAdapter($response),
                 'base_url' => Request::URL
             )
         );
+        $client->getEmitter()->attach($mock);
 
         $request = new Request('fake_token');
         $request->setHttpClient($client);

@@ -16,7 +16,7 @@ class Request
     const URL = 'https://secure.gaug.es';
 
     /** @var null|ClientInterface */
-    protected $client;
+    private $client;
 
     /** @var array */
     protected $httpDefaults;
@@ -79,9 +79,21 @@ class Request
     {
         $logSubscriber = new LogSubscriber($logger, $format);
 
-        $this->getHttpClient()->getEmitter()->attach($logSubscriber);
+        $this->getEmitter()->attach($logSubscriber);
 
         return $this;
+    }
+
+    /**
+     * Returns the guzzle client emitter.
+     *
+     * This is useful in order to attach event listeners to the Client.
+     *
+     * @retur EmitterInterface
+     */
+    public function getEmitter()
+    {
+        return $this->getHttpClient()->getEmitter();
     }
 
     /**
