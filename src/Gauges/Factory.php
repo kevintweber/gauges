@@ -2,9 +2,9 @@
 
 namespace Kevintweber\Gauges;
 
-use GuzzleHttp\Subscriber\Mock;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\Response;
+use GuzzleHttp\MessageFormatter;
 use Psr\Log\LoggerInterface;
 
 class Factory
@@ -15,6 +15,7 @@ class Factory
      * @param string          $token
      * @param array           $httpDefaults (Optional)
      * @param LoggerInterface $logger       (Optional)
+     * @param string          $format       (Optional log format)
      *
      * @return Request
      */
@@ -26,34 +27,14 @@ class Factory
         $request = new Request($token, $httpDefaults);
 
         if ($logger instanceof LoggerInterface) {
-            $request->attachLogger($logger, $format);
+            $request->setLogger($logger);
         }
 
-        return $request;
-    }
-
-    /**
-     * Factory method used for testing.
-     *
-     * @param Response $response
-     *
-     * @return Request
-     */
-    public static function createMockRequest(Response $response)
-    {
-        // Create mock.
-        $mock = new Mock(array($response));
-
-        // Create client.
-        $client = new Client(
-            array(
-                'base_url' => Request::URL
-            )
-        );
-        $client->getEmitter()->attach($mock);
-
-        $request = new Request('fake_token');
-        $request->setHttpClient($client);
+        if ($format !== null) {
+            $request->setMessageFormatter(
+                new MessageFormatter($format)
+            );
+        }
 
         return $request;
     }

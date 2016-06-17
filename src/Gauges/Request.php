@@ -4,22 +4,37 @@ namespace Kevintweber\Gauges;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Subscriber\Log\Formatter;
-use GuzzleHttp\Subscriber\Log\LogSubscriber;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\MessageFormatter;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 /**
  * Used to make Gauges API calls.
  */
-class Request
+class Request implements LoggerAwareInterface
 {
-    const URL = 'https://secure.gaug.es';
+    const URI = 'https://secure.gaug.es/';
 
     /** @var null|ClientInterface */
     private $client;
 
+    /** @var GuzzleHttp\HandlerStack */
+    private $handlerStack;
+
+    /** @var LoggerInterface */
+    private $logger;
+
+    /** @var string */
+    private $logLevel;
+
+    /** @var MessageFormatter */
+    private $messageFormatter;
+
     /** @var array */
-    protected $httpDefaults;
+    private $options;
 
     /** @var string */
     protected $token;
@@ -30,11 +45,18 @@ class Request
      * @param string $token        Your API token
      * @param array  $httpDefaults See Guzzle documentation (proxy, etc.)
      */
-    public function __construct($token,
-                                array $httpDefaults = array())
+    public function __construct($token, array $options = array())
     {
         $this->client = null;
-        $this->httpDefaults = $httpDefaults;
+        $this->handlerStack = HandlerStack::create();
+        $this->logger = null;
+        $this->logLevel = LogLevel::INFO;
+        $this->messageFormatter = new MessageFormatter('{req_body} - {res_body}');
+        $this->options = array_merge(
+            array('timeout' => 10),
+            $options
+        );
+        $this->options['base_uri'] = self::URI;
         $this->token = $token;
     }
 
@@ -43,57 +65,44 @@ class Request
      *
      * @return Client
      */
-    public function getHttpClient()
+    protected function getHttpClient()
     {
         if ($this->client === null) {
-            $this->client = new Client(
-                array(
-                    'base_url' => self::URL,
-                    'defaults' => $this->httpDefaults
-                )
-            );
+            if ($this->logger instanceof LoggerInterface) {
+                $this->handlerStack->push(
+                    Middleware::log(
+                        $this->logger,
+                        $this->messageFormatter,
+                        $this->logLevel
+                    )
+                );
+            }
+
+            $this->client = new Client($this->options);
         }
 
         return $this->client;
     }
 
-    /**
-     * Set a custom http client.
-     *
-     * Primarily used for testing.
-     *
-     * @param ClientInterface $client
-     */
-    public function setHttpClient(ClientInterface $client)
+    public function setLogger(LoggerInterface $logger)
     {
-        $this->client = $client;
-    }
-
-    /**
-     * Helper function for attaching a custom logger.
-     *
-     * @param LoggerInterface  $logger
-     * @param string|Formatter $format (Optional)
-     */
-    public function attachLogger(LoggerInterface $logger, $format = null)
-    {
-        $logSubscriber = new LogSubscriber($logger, $format);
-
-        $this->getEmitter()->attach($logSubscriber);
+        $this->logger = $logger;
 
         return $this;
     }
 
-    /**
-     * Returns the guzzle client emitter.
-     *
-     * This is useful in order to attach event listeners to the Client.
-     *
-     * @retur EmitterInterface
-     */
-    public function getEmitter()
+    public function setLogLevel($logLevel)
     {
-        return $this->getHttpClient()->getEmitter();
+        $this->logLevel = $logLevel;
+
+        return $this;
+    }
+
+    public function setMessageFormatter(MessageFormatter $messageFormatter)
+    {
+        $this->messageFormatter = $messageFormatter;
+
+        return $this;
     }
 
     /**
@@ -511,35 +520,25 @@ class Request
     /**
      * Make the actual gauges API call.
      *
-     * @param string $functionName The calling function name.
      * @param string $method       [GET|POST|PUT|DELETE]
      * @param string $path
      * @param array  $params
      *
      * @return GuzzleHttp\Message\Response
      */
-    protected function makeApiCall($method,
-                                   $path,
-                                   array $params = array())
+    protected function makeApiCall($method, $path, array $params = array())
     {
         // Format method.
         $method = strtoupper($method);
 
-        // Format path.
-        if ($path[0] != '/') {
-            $path = '/' . $path;
-        }
-
         // Make API call.
-        $request = $this->getHttpClient()->createRequest(
+        return $this->getHttpClient()->request(
             $method,
             $path,
-            array('headers' => array('X-Gauges-Token' => $this->token))
+            array(
+                'headers' => array('X-Gauges-Token' => $this->token),
+                'query' => $params
+            )
         );
-        if (!empty($params)) {
-            $request->setQuery($params);
-        }
-
-        return $this->getHttpClient()->send($request);
     }
 }
