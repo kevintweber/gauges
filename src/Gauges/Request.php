@@ -78,10 +78,18 @@ class Request implements LoggerAwareInterface
                 );
             }
 
+            $this->options['handler'] = $this->handlerStack;
             $this->client = new Client($this->options);
         }
 
         return $this->client;
+    }
+
+    public function setHandlerStack($handlerStack)
+    {
+        $this->handlerStack = $handlerStack;
+
+        return $this;
     }
 
     public function setLogger(LoggerInterface $logger)
