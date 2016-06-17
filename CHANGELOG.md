@@ -1,4 +1,4 @@
-- Changelog
+# Changelog
 
 All Notable changes to `kevintweber/gauges` will be documented in this file.
 
