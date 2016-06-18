@@ -7,6 +7,9 @@ use GuzzleHttp\Message\Response;
 use GuzzleHttp\MessageFormatter;
 use Psr\Log\LoggerInterface;
 
+/**
+ * A helper class to make creating requests easy.
+ */
 class Factory
 {
     /**

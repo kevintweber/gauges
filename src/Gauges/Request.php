@@ -21,7 +21,7 @@ class Request implements LoggerAwareInterface
     /** @var null|ClientInterface */
     private $client;
 
-    /** @var GuzzleHttp\HandlerStack */
+    /** @var HandlerStack */
     private $handlerStack;
 
     /** @var LoggerInterface */
@@ -42,8 +42,8 @@ class Request implements LoggerAwareInterface
     /**
      * Constructor
      *
-     * @param string $token        Your API token
-     * @param array  $httpDefaults See Guzzle documentation (proxy, etc.)
+     * @param string $token     Your API token
+     * @param array  $options   See Guzzle documentation (proxy, etc.)
      */
     public function __construct($token, array $options = array())
     {
@@ -85,7 +85,10 @@ class Request implements LoggerAwareInterface
         return $this->client;
     }
 
-    public function setHandlerStack($handlerStack)
+    /**
+     * Setter for the Guzzle HandlerStack
+     */
+    public function setHandlerStack(HandlerStack $handlerStack)
     {
         $this->handlerStack = $handlerStack;
 
@@ -106,6 +109,9 @@ class Request implements LoggerAwareInterface
         return $this;
     }
 
+    /**
+     * Setter for the Guzzle MessageFormatter
+     */
     public function setMessageFormatter(MessageFormatter $messageFormatter)
     {
         $this->messageFormatter = $messageFormatter;
@@ -118,7 +124,7 @@ class Request implements LoggerAwareInterface
      *
      * Returns your information.
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function me()
     {
@@ -133,7 +139,7 @@ class Request implements LoggerAwareInterface
      * @param string $first_name Your first name.
      * @param string $last_name  Your last name.
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function update_me($first_name = null, $last_name = null)
     {
@@ -155,7 +161,7 @@ class Request implements LoggerAwareInterface
      *
      * Returns an array of your API clients.
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function list_clients()
     {
@@ -170,7 +176,7 @@ class Request implements LoggerAwareInterface
      *
      * @param string $description Short description for the key
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function create_client($description = null)
     {
@@ -190,7 +196,7 @@ class Request implements LoggerAwareInterface
      *
      * @param string $id
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function delete_client($id)
     {
@@ -202,7 +208,7 @@ class Request implements LoggerAwareInterface
      *
      * Returns an array of your gauges, with recent traffic included.
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function list_gauges($page = null)
     {
@@ -224,7 +230,7 @@ class Request implements LoggerAwareInterface
      * @param string $tz
      * @param string $allowedHosts (Optional)
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function create_gauge($title, $tz, $allowedHosts = null)
     {
@@ -247,7 +253,7 @@ class Request implements LoggerAwareInterface
      *
      * @param string $id
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function gauge_detail($id)
     {
@@ -264,7 +270,7 @@ class Request implements LoggerAwareInterface
      * @param string $tz
      * @param string $allowedHosts (Optional)
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function update_gauge($id, $title, $tz, $allowedHosts = null)
     {
@@ -287,7 +293,7 @@ class Request implements LoggerAwareInterface
      *
      * @param string $id
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function delete_gauge($id)
     {
@@ -301,7 +307,7 @@ class Request implements LoggerAwareInterface
      *
      * @param string $id
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function list_shares($id)
     {
@@ -318,7 +324,7 @@ class Request implements LoggerAwareInterface
      * @param string $id
      * @param string $email
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function share_gauge($id, $email)
     {
@@ -335,7 +341,7 @@ class Request implements LoggerAwareInterface
      * @param string $id
      * @param string $user_id
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function unshare_gauge($id, $user_id)
     {
@@ -351,7 +357,7 @@ class Request implements LoggerAwareInterface
      * @param string $date (Optional) Date in format YYYY-MM-DD
      * @param int    $page (Optional)
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function top_content($id, $date = null, $page = null)
     {
@@ -377,7 +383,7 @@ class Request implements LoggerAwareInterface
      * @param string $date (Optional) Date in format YYYY-MM-DD
      * @param int    $page (Optional)
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function top_referrers($id, $date = null, $page = null)
     {
@@ -402,7 +408,7 @@ class Request implements LoggerAwareInterface
      * @param string $id
      * @param string $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function traffic($id, $date = null)
     {
@@ -423,7 +429,7 @@ class Request implements LoggerAwareInterface
      * @param string $id
      * @param string $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function browser_resolutions($id, $date = null)
     {
@@ -444,7 +450,7 @@ class Request implements LoggerAwareInterface
      * @param string $id
      * @param string $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function technology($id, $date = null)
     {
@@ -466,7 +472,7 @@ class Request implements LoggerAwareInterface
      * @param string $date (Optional) Date in format YYYY-MM-DD
      * @param int    $page (Optional)
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function search_terms($id, $date = null, $page = null)
     {
@@ -491,7 +497,7 @@ class Request implements LoggerAwareInterface
      * @param string $id
      * @param string $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function search_engines($id, $date = null)
     {
@@ -512,7 +518,7 @@ class Request implements LoggerAwareInterface
      * @param string $id
      * @param string $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     public function locations($id, $date = null)
     {
@@ -532,7 +538,7 @@ class Request implements LoggerAwareInterface
      * @param string $path
      * @param array  $params
      *
-     * @return GuzzleHttp\Message\Response
+     * @return GuzzleHttp\Psr7\Response
      */
     protected function makeApiCall($method, $path, array $params = array())
     {
