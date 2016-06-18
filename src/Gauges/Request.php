@@ -51,7 +51,7 @@ class Request implements LoggerAwareInterface
         $this->handlerStack = HandlerStack::create();
         $this->logger = null;
         $this->logLevel = LogLevel::INFO;
-        $this->messageFormatter = new MessageFormatter('{req_body} - {res_body}');
+        $this->messageFormatter = new MessageFormatter();
         $this->options = array_merge(
             array('timeout' => 10),
             $options
