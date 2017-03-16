@@ -11,6 +11,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - `browserstats` API call.
 
 ### Updated
+- Minimum PHP version is 5.6
 - Updated dependencies to allow PHP7.
 - Updated unit tests to use new PHPUnit class structure.
 
