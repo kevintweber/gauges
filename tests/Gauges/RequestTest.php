@@ -9,9 +9,10 @@ use GuzzleHttp\Psr7\Response;
 use Kevintweber\Gauges\Request;
 use Monolog\Logger;
 use Monolog\Handler\TestHandler;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 
-class RequestTest extends \PHPUnit_Framework_TestCase
+class RequestTest extends TestCase
 {
     protected static $testHandler;
 
@@ -168,6 +169,11 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $response = $request->top_content('asdf', null, 2);
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/content?page=2');
+
+        $request = $this->buildRequest(200);
+        $response = $request->top_content('asdf', null, 2, 'month');
+        $logMessage = $this->getLastLoggingMessage();
+        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/content?group=month&page=2');
     }
 
     public function testTopReferrers()
@@ -269,6 +275,19 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $response = $request->locations('asdf', '2014-01-01');
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/locations?date=2014-01-01');
+    }
+
+    public function testBrowserstats()
+    {
+        $request = $this->buildRequest(200);
+        $response = $request->browser_stats('asdf');
+        $logMessage = $this->getLastLoggingMessage();
+        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/browserstats');
+
+        $request = $this->buildRequest(200);
+        $response = $request->browser_stats('asdf', '2014-01-01');
+        $logMessage = $this->getLastLoggingMessage();
+        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/browserstats?date=2014-01-01');
     }
 
     /**

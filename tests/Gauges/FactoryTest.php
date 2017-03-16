@@ -2,12 +2,11 @@
 
 namespace Kevintweber\Gauges\Tests;
 
-use GuzzleHttp\Message\Response;
-use GuzzleHttp\Stream\Stream;
 use Kevintweber\Gauges\Factory;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
-class FactoryTest extends \PHPUnit_Framework_TestCase
+class FactoryTest extends TestCase
 {
     public function testCreateRequest()
     {

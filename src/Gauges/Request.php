@@ -354,17 +354,22 @@ class Request implements LoggerAwareInterface
      * Gets top content for a gauge, paginated.
      *
      * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
-     * @param int    $page (Optional)
+     * @param string $date  (Optional) Date in format YYYY-MM-DD
+     * @param int    $page  (Optional)
+     * @param string $group (Optional) Either "day" or "month".  Default is "day".
      *
      * @return GuzzleHttp\Psr7\Response
      */
-    public function top_content($id, $date = null, $page = null)
+    public function top_content($id, $date = null, $page = null, $group = null)
     {
         $params = array();
 
         if (isset($date)) {
             $params['date'] = (string) $date;
+        }
+
+        if (isset($group)) {
+            $params['group'] = (string) $group;
         }
 
         if (isset($page)) {
@@ -529,6 +534,28 @@ class Request implements LoggerAwareInterface
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/locations', $params);
+    }
+
+    /**
+     * Browser stats
+     *
+     * Get the browser statistics in a format used with the browserlist module.
+     * (See https://github.com/ai/browserslist)
+     *
+     * @param string $id
+     * @param string $date (Optional) Date in format YYYY-MM-DD
+     *
+     * @return GuzzleHttp\Psr7\Response
+     */
+    public function browser_stats($id, $date = null)
+    {
+        $params = array();
+
+        if (isset($date)) {
+            $params['date'] = (string) $date;
+        }
+
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/browserstats', $params);
     }
 
     /**
