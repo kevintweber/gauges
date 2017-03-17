@@ -150,7 +150,6 @@ class Request implements LoggerAwareInterface
     public function updateMe(string $first_name = null, string $last_name = null) : Response
     {
         $params = array();
-
         if (isset($first_name)) {
             $params['first_name'] = $first_name;
         }
@@ -187,7 +186,6 @@ class Request implements LoggerAwareInterface
     public function createClient(string $description = null) : Response
     {
         $params = array();
-
         if (isset($description)) {
             $params['description'] = $description;
         }
@@ -221,7 +219,6 @@ class Request implements LoggerAwareInterface
     public function listGauges(int $page = null) : Response
     {
         $params = array();
-
         if (isset($page)) {
             $params['page'] = $page;
         }
@@ -250,7 +247,6 @@ class Request implements LoggerAwareInterface
             'title' => $title,
             'tz' => $tz->getName()
         );
-
         if (isset($allowedHosts)) {
             $params['allowed_hosts'] = $allowedHosts;
         }
@@ -294,7 +290,6 @@ class Request implements LoggerAwareInterface
             'title' => $title,
             'tz' => $tz->getName()
         );
-
         if (isset($allowedHosts)) {
             $params['allowed_hosts'] = $allowedHosts;
         }
@@ -365,16 +360,7 @@ class Request implements LoggerAwareInterface
      */
     public function topContent(string $id, $date = null, string $group = null, int $page = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
-
+        $params = $this->formatDateParameter($date);
         if (isset($group)) {
             $group = strtolower($group);
             if ($group !== 'month' && $group !== 'day') {
@@ -419,16 +405,7 @@ class Request implements LoggerAwareInterface
      */
     public function topReferrers(string $id, $date = null, int $page = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
-
+        $params = $this->formatDateParameter($date);
         if (isset($page)) {
             $params['page'] = (int) $page;
         }
@@ -448,17 +425,7 @@ class Request implements LoggerAwareInterface
      */
     public function traffic(string $id, $date = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/traffic', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/traffic', $this->formatDateParameter($date));
     }
 
     /**
@@ -473,17 +440,7 @@ class Request implements LoggerAwareInterface
      */
     public function browserResolutions(string $id, $date = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/resolutions', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/resolutions', $this->formatDateParameter($date));
     }
 
     /**
@@ -498,17 +455,7 @@ class Request implements LoggerAwareInterface
      */
     public function technology(string $id, $date = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/technology', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/technology', $this->formatDateParameter($date));
     }
 
     /**
@@ -524,15 +471,7 @@ class Request implements LoggerAwareInterface
      */
     public function searchTerms(string $id, $date = null, int $page = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
+        $params = $this->formatDateParameter($date);
 
         if (isset($page)) {
             $params['page'] = $page;
@@ -553,17 +492,7 @@ class Request implements LoggerAwareInterface
      */
     public function searchEngines(string $id, $date = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/engines', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/engines', $this->formatDateParameter($date));
     }
 
     /**
@@ -578,17 +507,7 @@ class Request implements LoggerAwareInterface
      */
     public function locations(string $id, $date = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/locations', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/locations', $this->formatDateParameter($date));
     }
 
     /**
@@ -604,17 +523,7 @@ class Request implements LoggerAwareInterface
      */
     public function browserStats(string $id, $date = null) : Response
     {
-        $params = array();
-
-        if (isset($date)) {
-            if (!$date instanceof \DateTime) {
-                $date = new \DateTime($date);
-            }
-
-            $params['date'] = $date->format('Y-m-d');
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/browserstats', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/browserstats', $this->formatDateParameter($date));
     }
 
     /**
@@ -640,5 +549,19 @@ class Request implements LoggerAwareInterface
                 'query' => $params
             )
         );
+    }
+
+    private function formatDateParameter($date = null) : array
+    {
+        $params = array();
+        if (isset($date)) {
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
+        }
+
+        return $params;
     }
 }
