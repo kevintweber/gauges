@@ -2,7 +2,6 @@
 
 namespace Kevintweber\Gauges;
 
-use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
