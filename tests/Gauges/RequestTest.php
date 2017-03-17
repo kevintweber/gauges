@@ -37,7 +37,7 @@ class RequestTest extends TestCase
         $this->assertInstanceOf('GuzzleHttp\Psr7\Response', $response);
         $this->assertEquals($response->getStatusCode(), 200);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/me');
+        $this->assertEquals('GET-https://secure.gaug.es/me', $logMessage);
     }
 
     public function testUpdateMe()
@@ -45,12 +45,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->updateMe('Kevin', 'Weber');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'PUT-https://secure.gaug.es/me?first_name=Kevin&last_name=Weber');
+        $this->assertEquals('PUT-https://secure.gaug.es/me?first_name=Kevin&last_name=Weber', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->updateMe(null, 'Weber');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'PUT-https://secure.gaug.es/me?last_name=Weber');
+        $this->assertEquals('PUT-https://secure.gaug.es/me?last_name=Weber', $logMessage);
     }
 
     public function testListClients()
@@ -58,7 +58,7 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->listClients();
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/clients');
+        $this->assertEquals('GET-https://secure.gaug.es/clients', $logMessage);
     }
 
     public function testCreateClient()
@@ -66,12 +66,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->createClient();
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'POST-https://secure.gaug.es/clients');
+        $this->assertEquals('POST-https://secure.gaug.es/clients', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->createClient('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'POST-https://secure.gaug.es/clients?description=asdf');
+        $this->assertEquals('POST-https://secure.gaug.es/clients?description=asdf', $logMessage);
     }
 
     public function testDeleteClients()
@@ -79,7 +79,7 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->deleteClient('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'DELETE-https://secure.gaug.es/clients/asdf');
+        $this->assertEquals('DELETE-https://secure.gaug.es/clients/asdf', $logMessage);
     }
 
     public function testListGauges()
@@ -87,12 +87,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->listGauges();
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->listGauges(3);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges?page=3');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges?page=3', $logMessage);
     }
 
     public function testCreateGauge()
@@ -100,12 +100,23 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->createGauge('asdf', 'America/New_York');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'POST-https://secure.gaug.es/gauges?title=asdf&tz=America%2FNew_York');
+        $this->assertEquals('POST-https://secure.gaug.es/gauges?title=asdf&tz=America%2FNew_York', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->createGauge('asdf', 'America/New_York', 'all,none');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'POST-https://secure.gaug.es/gauges?title=asdf&tz=America%2FNew_York&allowed_hosts=all%2Cnone');
+        $this->assertEquals('POST-https://secure.gaug.es/gauges?title=asdf&tz=America%2FNew_York&allowed_hosts=all%2Cnone',
+            $logMessage
+        );
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testExceptionFromEmptyTitleInCreateGauge()
+    {
+        $request = $this->buildRequest(200);
+        $request->createGauge('', 'America/New_York');
     }
 
     public function testGaugeDetail()
@@ -113,7 +124,7 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->gaugeDetail('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf', $logMessage);
     }
 
     public function testUpdateGauge()
@@ -121,12 +132,15 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->updateGauge('asdf1', 'asdf2', 'America/New_York');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'PUT-https://secure.gaug.es/gauges/asdf1?title=asdf2&tz=America%2FNew_York');
+        $this->assertEquals('PUT-https://secure.gaug.es/gauges/asdf1?title=asdf2&tz=America%2FNew_York', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->updateGauge('asdf1', 'asdf2', new \DateTimeZone('America/New_York'), 'all,none');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'PUT-https://secure.gaug.es/gauges/asdf1?title=asdf2&tz=America%2FNew_York&allowed_hosts=all%2Cnone');
+        $this->assertEquals(
+            'PUT-https://secure.gaug.es/gauges/asdf1?title=asdf2&tz=America%2FNew_York&allowed_hosts=all%2Cnone',
+            $logMessage
+        );
     }
 
     public function testDeleteGauge()
@@ -134,7 +148,7 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->deleteGauge('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'DELETE-https://secure.gaug.es/gauges/asdf');
+        $this->assertEquals('DELETE-https://secure.gaug.es/gauges/asdf', $logMessage);
     }
 
     public function testListShares()
@@ -142,7 +156,7 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->listShares('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/shares');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/shares', $logMessage);
     }
 
     public function testShareGauge()
@@ -150,7 +164,7 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->shareGauge('asdf', 'kevintweber@gmail.com');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'POST-https://secure.gaug.es/gauges/asdf/shares?email=kevintweber%40gmail.com');
+        $this->assertEquals('POST-https://secure.gaug.es/gauges/asdf/shares?email=kevintweber%40gmail.com', $logMessage);
     }
 
     public function testUnshareGauge()
@@ -158,7 +172,7 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->unshareGauge('asdf', 'kevintweber');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'DELETE-https://secure.gaug.es/gauges/asdf/shares/kevintweber');
+        $this->assertEquals('DELETE-https://secure.gaug.es/gauges/asdf/shares/kevintweber', $logMessage);
     }
 
     public function testTopContent()
@@ -166,22 +180,22 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->topContent('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/content');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/content', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->topContent('asdf', '2014-01-01', null, 3);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/content?date=2014-01-01&page=3');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/content?date=2014-01-01&page=3', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->topContent('asdf', null, null, 2);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/content?page=2');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/content?page=2', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->topContent('asdf', null, 'month', 2);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/content?group=month&page=2');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/content?page=2&group=month', $logMessage);
     }
 
     /**
@@ -198,22 +212,22 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->topReferrers('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/referrers');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/referrers', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->topReferrers('asdf', '2014-01-01', 3);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/referrers?date=2014-01-01&page=3');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/referrers?date=2014-01-01&page=3', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->topReferrers('asdf', new \DateTime('2014-01-01'), 3);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/referrers?date=2014-01-01&page=3');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/referrers?date=2014-01-01&page=3', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->topReferrers('asdf', null, 2);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/referrers?page=2');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/referrers?page=2', $logMessage);
     }
 
     public function testTraffic()
@@ -221,12 +235,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->traffic('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/traffic');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/traffic', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->traffic('asdf', '2014-01-01');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/traffic?date=2014-01-01');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/traffic?date=2014-01-01', $logMessage);
     }
 
     public function testBrowserResolutions()
@@ -234,12 +248,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->browserResolutions('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/resolutions');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/resolutions', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->browserResolutions('asdf', '2014-01-01');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/resolutions?date=2014-01-01');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/resolutions?date=2014-01-01', $logMessage);
     }
 
     public function testTechnology()
@@ -247,12 +261,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->technology('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/technology');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/technology', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->technology('asdf', '2014-01-01');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/technology?date=2014-01-01');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/technology?date=2014-01-01', $logMessage);
     }
 
     public function testSearchTerms()
@@ -260,17 +274,17 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->searchTerms('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/terms');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/terms', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->searchTerms('asdf', '2014-01-01', 3);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/terms?date=2014-01-01&page=3');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/terms?date=2014-01-01&page=3', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->searchTerms('asdf', null, 3);
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/terms?page=3');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/terms?page=3', $logMessage);
     }
 
     public function testSearchEngines()
@@ -278,12 +292,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->searchEngines('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/engines');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/engines', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->searchEngines('asdf', '2014-01-01');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/engines?date=2014-01-01');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/engines?date=2014-01-01', $logMessage);
     }
 
     public function testLocations()
@@ -291,12 +305,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->locations('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/locations');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/locations', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->locations('asdf', '2014-01-01');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/locations?date=2014-01-01');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/locations?date=2014-01-01', $logMessage);
     }
 
     public function testBrowserstats()
@@ -304,12 +318,12 @@ class RequestTest extends TestCase
         $request = $this->buildRequest(200);
         $request->browserStats('asdf');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/browserstats');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/browserstats', $logMessage);
 
         $request = $this->buildRequest(200);
         $request->browserStats('asdf', '2014-01-01');
         $logMessage = $this->getLastLoggingMessage();
-        $this->assertEquals($logMessage, 'GET-https://secure.gaug.es/gauges/asdf/browserstats?date=2014-01-01');
+        $this->assertEquals('GET-https://secure.gaug.es/gauges/asdf/browserstats?date=2014-01-01', $logMessage);
     }
 
     /**

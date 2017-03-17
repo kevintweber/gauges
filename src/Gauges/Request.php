@@ -217,12 +217,7 @@ class Request implements LoggerAwareInterface
      */
     public function listGauges(int $page = null) : Response
     {
-        $params = array();
-        if (isset($page)) {
-            $params['page'] = $page;
-        }
-
-        return $this->makeApiCall('GET', 'gauges', $params);
+        return $this->makeApiCall('GET', 'gauges', $this->formatCommonParameters(null, $page));
     }
 
     /**
@@ -238,19 +233,7 @@ class Request implements LoggerAwareInterface
      */
     public function createGauge(string $title, $tz, string $allowedHosts = null) : Response
     {
-        if (!$tz instanceof \DateTimeZone) {
-            $tz = new \DateTimeZone($tz);
-        }
-
-        $params = array(
-            'title' => $title,
-            'tz' => $tz->getName()
-        );
-        if (isset($allowedHosts)) {
-            $params['allowed_hosts'] = $allowedHosts;
-        }
-
-        return $this->makeApiCall('POST', 'gauges', $params);
+        return $this->makeApiCall('POST', 'gauges', $this->formatGaugeParameters($title, $tz, $allowedHosts));
     }
 
     /**
@@ -281,19 +264,7 @@ class Request implements LoggerAwareInterface
      */
     public function updateGauge(string $id, string $title, $tz, string $allowedHosts = null) : Response
     {
-        if (!$tz instanceof \DateTimeZone) {
-            $tz = new \DateTimeZone($tz);
-        }
-
-        $params = array(
-            'title' => $title,
-            'tz' => $tz->getName()
-        );
-        if (isset($allowedHosts)) {
-            $params['allowed_hosts'] = $allowedHosts;
-        }
-
-        return $this->makeApiCall('PUT', 'gauges/' . $id, $params);
+        return $this->makeApiCall('PUT', 'gauges/' . $id, $this->formatGaugeParameters($title, $tz, $allowedHosts));
     }
 
     /**
@@ -359,7 +330,7 @@ class Request implements LoggerAwareInterface
      */
     public function topContent(string $id, $date = null, string $group = null, int $page = null) : Response
     {
-        $params = $this->formatDateParameter($date);
+        $params = $this->formatCommonParameters($date, $page);
         if (isset($group)) {
             $group = strtolower($group);
             if ($group !== 'month' && $group !== 'day') {
@@ -369,10 +340,6 @@ class Request implements LoggerAwareInterface
             }
 
             $params['group'] = $group;
-        }
-
-        if (isset($page)) {
-            $params['page'] = $page;
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/content', $params);
@@ -404,12 +371,7 @@ class Request implements LoggerAwareInterface
      */
     public function topReferrers(string $id, $date = null, int $page = null) : Response
     {
-        $params = $this->formatDateParameter($date);
-        if (isset($page)) {
-            $params['page'] = (int) $page;
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/referrers', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/referrers', $this->formatCommonParameters($date, $page));
     }
 
     /**
@@ -424,7 +386,7 @@ class Request implements LoggerAwareInterface
      */
     public function traffic(string $id, $date = null) : Response
     {
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/traffic', $this->formatDateParameter($date));
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/traffic', $this->formatCommonParameters($date));
     }
 
     /**
@@ -439,7 +401,7 @@ class Request implements LoggerAwareInterface
      */
     public function browserResolutions(string $id, $date = null) : Response
     {
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/resolutions', $this->formatDateParameter($date));
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/resolutions', $this->formatCommonParameters($date));
     }
 
     /**
@@ -454,7 +416,7 @@ class Request implements LoggerAwareInterface
      */
     public function technology(string $id, $date = null) : Response
     {
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/technology', $this->formatDateParameter($date));
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/technology', $this->formatCommonParameters($date));
     }
 
     /**
@@ -470,13 +432,7 @@ class Request implements LoggerAwareInterface
      */
     public function searchTerms(string $id, $date = null, int $page = null) : Response
     {
-        $params = $this->formatDateParameter($date);
-
-        if (isset($page)) {
-            $params['page'] = $page;
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/terms', $params);
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/terms', $this->formatCommonParameters($date, $page));
     }
 
     /**
@@ -491,7 +447,7 @@ class Request implements LoggerAwareInterface
      */
     public function searchEngines(string $id, $date = null) : Response
     {
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/engines', $this->formatDateParameter($date));
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/engines', $this->formatCommonParameters($date));
     }
 
     /**
@@ -506,7 +462,7 @@ class Request implements LoggerAwareInterface
      */
     public function locations(string $id, $date = null) : Response
     {
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/locations', $this->formatDateParameter($date));
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/locations', $this->formatCommonParameters($date));
     }
 
     /**
@@ -522,7 +478,7 @@ class Request implements LoggerAwareInterface
      */
     public function browserStats(string $id, $date = null) : Response
     {
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/browserstats', $this->formatDateParameter($date));
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/browserstats', $this->formatCommonParameters($date));
     }
 
     /**
@@ -550,7 +506,7 @@ class Request implements LoggerAwareInterface
         );
     }
 
-    private function formatDateParameter($date = null) : array
+    private function formatCommonParameters($date = null, int $page = null) : array
     {
         $params = array();
         if (isset($date)) {
@@ -559,6 +515,31 @@ class Request implements LoggerAwareInterface
             }
 
             $params['date'] = $date->format('Y-m-d');
+        }
+
+        if (isset($page)) {
+            $params['page'] = $page;
+        }
+
+        return $params;
+    }
+
+    private function formatGaugeParameters(string $title, $tz, string $allowedHosts = null) : array
+    {
+        if (empty($title)) {
+            throw new \InvalidArgumentException('Gauge title must not be empty.');
+        }
+
+        if (!$tz instanceof \DateTimeZone) {
+            $tz = new \DateTimeZone($tz);
+        }
+
+        $params = array(
+            'title' => $title,
+            'tz' => $tz->getName()
+        );
+        if (isset($allowedHosts)) {
+            $params['allowed_hosts'] = $allowedHosts;
         }
 
         return $params;
