@@ -36,7 +36,7 @@ $request = Factory::createRequest($your_gauges_api_token);
 $request->setLogger($logger);
 
 // Make an API call.
-$response = $request->gauge_detail($gauge_id);
+$response = $request->gaugeDetail($gauge_id);
 
 // The response is a Psr7 response.
 $content = (string) $response->getContent();

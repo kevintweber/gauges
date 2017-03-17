@@ -2,8 +2,6 @@
 
 namespace Kevintweber\Gauges;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Message\Response;
 use GuzzleHttp\MessageFormatter;
 use Psr\Log\LoggerInterface;
 
@@ -22,10 +20,10 @@ class Factory
      *
      * @return Request
      */
-    public static function createRequest($token,
+    public static function createRequest(string $token,
                                          array $httpDefaults = array(),
                                          LoggerInterface $logger = null,
-                                         $format = null)
+                                         string $format = null) : Request
     {
         $request = new Request($token, $httpDefaults);
 

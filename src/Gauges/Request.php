@@ -2,11 +2,13 @@
 
 namespace Kevintweber\Gauges;
 
+use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\MessageFormatter;
+use GuzzleHttp\Psr7\Response;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -24,7 +26,7 @@ class Request implements LoggerAwareInterface
     /** @var HandlerStack */
     private $handlerStack;
 
-    /** @var LoggerInterface */
+    /** @var null|LoggerInterface */
     private $logger;
 
     /** @var string */
@@ -45,7 +47,7 @@ class Request implements LoggerAwareInterface
      * @param string $token     Your API token
      * @param array  $options   See Guzzle documentation (proxy, etc.)
      */
-    public function __construct($token, array $options = array())
+    public function __construct(string $token, array $options = array())
     {
         $this->client = null;
         $this->handlerStack = HandlerStack::create();
@@ -65,7 +67,7 @@ class Request implements LoggerAwareInterface
      *
      * @return Client
      */
-    protected function getHttpClient()
+    protected function getHttpClient() : Client
     {
         if ($this->client === null) {
             if ($this->logger instanceof LoggerInterface) {
@@ -91,22 +93,28 @@ class Request implements LoggerAwareInterface
     public function setHandlerStack(HandlerStack $handlerStack)
     {
         $this->handlerStack = $handlerStack;
-
-        return $this;
     }
 
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
-
-        return $this;
     }
 
-    public function setLogLevel($logLevel)
+    public function setLogLevel(string $logLevel)
     {
-        $this->logLevel = $logLevel;
+        $logLevel = strtolower($logLevel);
+        if ($logLevel !== LogLevel::ALERT &&
+            $logLevel !== LogLevel::CRITICAL &&
+            $logLevel !== LogLevel::DEBUG &&
+            $logLevel !== LogLevel::EMERGENCY &&
+            $logLevel !== LogLevel::ERROR &&
+            $logLevel !== LogLevel::INFO &&
+            $logLevel !== LogLevel::NOTICE &&
+            $logLevel !== LogLevel::WARNING) {
+            throw new \InvalidArgumentException('Invalid log level: ' . $logLevel);
+        }
 
-        return $this;
+        $this->logLevel = $logLevel;
     }
 
     /**
@@ -115,8 +123,6 @@ class Request implements LoggerAwareInterface
     public function setMessageFormatter(MessageFormatter $messageFormatter)
     {
         $this->messageFormatter = $messageFormatter;
-
-        return $this;
     }
 
     /**
@@ -124,9 +130,9 @@ class Request implements LoggerAwareInterface
      *
      * Returns your information.
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function me()
+    public function me() : Response
     {
         return $this->makeApiCall('GET', 'me');
     }
@@ -136,21 +142,21 @@ class Request implements LoggerAwareInterface
      *
      * Updates and returns your information with the updates applied.
      *
-     * @param string $first_name Your first name.
-     * @param string $last_name  Your last name.
+     * @param string $first_name Your first name. (Optional)
+     * @param string $last_name  Your last name. (Optional)
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function update_me($first_name = null, $last_name = null)
+    public function updateMe(string $first_name = null, string $last_name = null) : Response
     {
         $params = array();
 
         if (isset($first_name)) {
-            $params['first_name'] = (string) $first_name;
+            $params['first_name'] = $first_name;
         }
 
         if (isset($last_name)) {
-            $params['last_name'] = (string) $last_name;
+            $params['last_name'] = $last_name;
         }
 
         return $this->makeApiCall('PUT', 'me', $params);
@@ -161,9 +167,9 @@ class Request implements LoggerAwareInterface
      *
      * Returns an array of your API clients.
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function list_clients()
+    public function listClients() : Response
     {
         return $this->makeApiCall('GET', 'clients');
     }
@@ -174,16 +180,16 @@ class Request implements LoggerAwareInterface
      * Creates an API client, which can be used to authenticate against
      * the Gaug.es API.
      *
-     * @param string $description Short description for the key
+     * @param string $description Short description for the key (Optional)
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function create_client($description = null)
+    public function createClient(string $description = null) : Response
     {
         $params = array();
 
         if (isset($description)) {
-            $params['description'] = (string) $description;
+            $params['description'] = $description;
         }
 
         return $this->makeApiCall('POST', 'clients', $params);
@@ -196,9 +202,9 @@ class Request implements LoggerAwareInterface
      *
      * @param string $id
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function delete_client($id)
+    public function deleteClient(string $id) : Response
     {
         return $this->makeApiCall('DELETE', 'clients/' . $id);
     }
@@ -208,14 +214,16 @@ class Request implements LoggerAwareInterface
      *
      * Returns an array of your gauges, with recent traffic included.
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @param int $page Page number (Optional)
+     *
+     * @return Response
      */
-    public function list_gauges($page = null)
+    public function listGauges(int $page = null) : Response
     {
         $params = array();
 
         if (isset($page)) {
-            $params['page'] = (int) $page;
+            $params['page'] = $page;
         }
 
         return $this->makeApiCall('GET', 'gauges', $params);
@@ -226,21 +234,25 @@ class Request implements LoggerAwareInterface
      *
      * Creates a gauge.
      *
-     * @param string $title
-     * @param string $tz
-     * @param string $allowedHosts (Optional)
+     * @param string               $title
+     * @param string|\DateTimeZone $tz
+     * @param string               $allowedHosts (Optional)
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function create_gauge($title, $tz, $allowedHosts = null)
+    public function createGauge(string $title, $tz, string $allowedHosts = null) : Response
     {
+        if (!$tz instanceof \DateTimeZone) {
+            $tz = new \DateTimeZone($tz);
+        }
+
         $params = array(
             'title' => $title,
-            'tz' => $tz
+            'tz' => $tz->getName()
         );
 
         if (isset($allowedHosts)) {
-            $params['allowed_hosts'] = (string) $allowedHosts;
+            $params['allowed_hosts'] = $allowedHosts;
         }
 
         return $this->makeApiCall('POST', 'gauges', $params);
@@ -253,9 +265,9 @@ class Request implements LoggerAwareInterface
      *
      * @param string $id
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function gauge_detail($id)
+    public function gaugeDetail(string $id) : Response
     {
         return $this->makeApiCall('GET', 'gauges/' . $id);
     }
@@ -265,22 +277,26 @@ class Request implements LoggerAwareInterface
      *
      * Updates and returns a gauge with the updates applied.
      *
-     * @param string $id
-     * @param string $title
-     * @param string $tz
-     * @param string $allowedHosts (Optional)
+     * @param string               $id
+     * @param string               $title
+     * @param string|\DateTimeZone $tz
+     * @param string               $allowedHosts (Optional)
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function update_gauge($id, $title, $tz, $allowedHosts = null)
+    public function updateGauge(string $id, string $title, $tz, string $allowedHosts = null) : Response
     {
+        if (!$tz instanceof \DateTimeZone) {
+            $tz = new \DateTimeZone($tz);
+        }
+
         $params = array(
             'title' => $title,
-            'tz' => $tz
+            'tz' => $tz->getName()
         );
 
         if (isset($allowedHosts)) {
-            $params['allowed_hosts'] = (string) $allowedHosts;
+            $params['allowed_hosts'] = $allowedHosts;
         }
 
         return $this->makeApiCall('PUT', 'gauges/' . $id, $params);
@@ -293,9 +309,9 @@ class Request implements LoggerAwareInterface
      *
      * @param string $id
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function delete_gauge($id)
+    public function deleteGauge(string $id) : Response
     {
         return $this->makeApiCall('DELETE', 'gauges/' . $id);
     }
@@ -307,9 +323,9 @@ class Request implements LoggerAwareInterface
      *
      * @param string $id
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function list_shares($id)
+    public function listShares(string $id) : Response
     {
         return $this->makeApiCall('GET', 'gauges/' . $id . '/shares');
     }
@@ -324,9 +340,9 @@ class Request implements LoggerAwareInterface
      * @param string $id
      * @param string $email
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function share_gauge($id, $email)
+    public function shareGauge(string $id, string $email) : Response
     {
         $params = array(
             'email' => $email
@@ -336,47 +352,58 @@ class Request implements LoggerAwareInterface
     }
 
     /**
+     * Top Content
+     *
+     * Gets top content for a gauge, paginated.
+     *
+     * @param string           $id
+     * @param string|\DateTime $date  (Optional) Date in format YYYY-MM-DD
+     * @param string           $group (Optional) Either "day" or "month".  Default is "day".
+     * @param int              $page  (Optional)
+     *
+     * @return Response
+     */
+    public function topContent(string $id, $date = null, string $group = null, int $page = null) : Response
+    {
+        $params = array();
+
+        if (isset($date)) {
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
+        }
+
+        if (isset($group)) {
+            $group = strtolower($group);
+            if ($group !== 'month' && $group !== 'day') {
+                throw new \InvalidArgumentException(
+                    'Invalid group parameter for "topContent" call.  Allowed values are "day" or "month".  Actual value is : ' . $group
+                );
+            }
+
+            $params['group'] = $group;
+        }
+
+        if (isset($page)) {
+            $params['page'] = $page;
+        }
+
+        return $this->makeApiCall('GET', 'gauges/' . $id . '/content', $params);
+    }
+
+    /**
      * Un-share Gauge
      *
      * @param string $id
      * @param string $user_id
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function unshare_gauge($id, $user_id)
+    public function unshareGauge(string $id, string $user_id) : Response
     {
         return $this->makeApiCall('DELETE', 'gauges/' . $id . '/shares/' . $user_id);
-    }
-
-    /**
-     * Top Content
-     *
-     * Gets top content for a gauge, paginated.
-     *
-     * @param string $id
-     * @param string $date  (Optional) Date in format YYYY-MM-DD
-     * @param int    $page  (Optional)
-     * @param string $group (Optional) Either "day" or "month".  Default is "day".
-     *
-     * @return GuzzleHttp\Psr7\Response
-     */
-    public function top_content($id, $date = null, $page = null, $group = null)
-    {
-        $params = array();
-
-        if (isset($date)) {
-            $params['date'] = (string) $date;
-        }
-
-        if (isset($group)) {
-            $params['group'] = (string) $group;
-        }
-
-        if (isset($page)) {
-            $params['page'] = (int) $page;
-        }
-
-        return $this->makeApiCall('GET', 'gauges/' . $id . '/content', $params);
     }
 
     /**
@@ -384,18 +411,22 @@ class Request implements LoggerAwareInterface
      *
      * Gets top referrers for a gauge, paginated.
      *
-     * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
-     * @param int    $page (Optional)
+     * @param string           $id
+     * @param string|\DateTime $date (Optional) Date in format YYYY-MM-DD
+     * @param int              $page (Optional)
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function top_referrers($id, $date = null, $page = null)
+    public function topReferrers(string $id, $date = null, int $page = null) : Response
     {
         $params = array();
 
         if (isset($date)) {
-            $params['date'] = (string) $date;
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
         }
 
         if (isset($page)) {
@@ -410,17 +441,21 @@ class Request implements LoggerAwareInterface
      *
      * Gets traffic for a gauge.
      *
-     * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param string           $id
+     * @param string|\DateTime $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function traffic($id, $date = null)
+    public function traffic(string $id, $date = null) : Response
     {
         $params = array();
 
         if (isset($date)) {
-            $params['date'] = (string) $date;
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/traffic', $params);
@@ -432,16 +467,20 @@ class Request implements LoggerAwareInterface
      * Gets browsers heights, browser widths, and screen widths for a gauge.
      *
      * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param string|\DateTime $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function browser_resolutions($id, $date = null)
+    public function browserResolutions(string $id, $date = null) : Response
     {
         $params = array();
 
         if (isset($date)) {
-            $params['date'] = (string) $date;
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/resolutions', $params);
@@ -452,17 +491,21 @@ class Request implements LoggerAwareInterface
      *
      * Gets browsers and platforms for a gauge.
      *
-     * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param string           $id
+     * @param string|\DateTime $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function technology($id, $date = null)
+    public function technology(string $id, $date = null) : Response
     {
         $params = array();
 
         if (isset($date)) {
-            $params['date'] = (string) $date;
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/technology', $params);
@@ -474,21 +517,25 @@ class Request implements LoggerAwareInterface
      * Gets search terms for a gauge, paginated.
      *
      * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param string|\DateTime $date (Optional) Date in format YYYY-MM-DD
      * @param int    $page (Optional)
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function search_terms($id, $date = null, $page = null)
+    public function searchTerms(string $id, $date = null, int $page = null) : Response
     {
         $params = array();
 
         if (isset($date)) {
-            $params['date'] = (string) $date;
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
         }
 
         if (isset($page)) {
-            $params['page'] = (int) $page;
+            $params['page'] = $page;
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/terms', $params);
@@ -500,16 +547,20 @@ class Request implements LoggerAwareInterface
      * Gets search engines for a gauge.
      *
      * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param string|\DateTime $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function search_engines($id, $date = null)
+    public function searchEngines(string $id, $date = null) : Response
     {
         $params = array();
 
         if (isset($date)) {
-            $params['date'] = (string) $date;
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/engines', $params);
@@ -521,16 +572,20 @@ class Request implements LoggerAwareInterface
      * Gets locations for a gauge.
      *
      * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param string|\DateTime $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function locations($id, $date = null)
+    public function locations(string $id, $date = null) : Response
     {
         $params = array();
 
         if (isset($date)) {
-            $params['date'] = (string) $date;
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/locations', $params);
@@ -543,16 +598,20 @@ class Request implements LoggerAwareInterface
      * (See https://github.com/ai/browserslist)
      *
      * @param string $id
-     * @param string $date (Optional) Date in format YYYY-MM-DD
+     * @param string|\DateTime $date (Optional) Date in format YYYY-MM-DD
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    public function browser_stats($id, $date = null)
+    public function browserStats(string $id, $date = null) : Response
     {
         $params = array();
 
         if (isset($date)) {
-            $params['date'] = (string) $date;
+            if (!$date instanceof \DateTime) {
+                $date = new \DateTime($date);
+            }
+
+            $params['date'] = $date->format('Y-m-d');
         }
 
         return $this->makeApiCall('GET', 'gauges/' . $id . '/browserstats', $params);
@@ -565,9 +624,9 @@ class Request implements LoggerAwareInterface
      * @param string $path
      * @param array  $params
      *
-     * @return GuzzleHttp\Psr7\Response
+     * @return Response
      */
-    protected function makeApiCall($method, $path, array $params = array())
+    protected function makeApiCall(string $method, string $path, array $params = array()) : Response
     {
         // Format method.
         $method = strtoupper($method);
