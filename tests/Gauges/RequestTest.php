@@ -21,21 +21,19 @@ class RequestTest extends TestCase
         self::$testHandler = new TestHandler();
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testExceptionInSetLogLevel()
-    {
-        $request = $this->buildRequest(200);
-        $request->setLogLevel('asdf');
-    }
-
     public function testMe()
     {
         $request = $this->buildRequest(200);
         $response = $request->me();
         $this->assertInstanceOf('GuzzleHttp\Psr7\Response', $response);
         $this->assertEquals($response->getStatusCode(), 200);
+        $logMessage = $this->getLastLoggingMessage();
+        $this->assertEquals('GET-https://secure.gaug.es/me', $logMessage);
+
+        // Test client caching.
+        $response2 = $request->me();
+        $this->assertInstanceOf('GuzzleHttp\Psr7\Response', $response2);
+        $this->assertEquals($response2->getStatusCode(), 200);
         $logMessage = $this->getLastLoggingMessage();
         $this->assertEquals('GET-https://secure.gaug.es/me', $logMessage);
     }
@@ -352,14 +350,14 @@ class RequestTest extends TestCase
         $logger = new Logger('testing');
         $logger->pushHandler(self::$testHandler);
 
-        $request = new Request('fake-token');
+        $request = new Request('fake-token', array(), LogLevel::DEBUG);
         $request->setLogger($logger);
-        $request->setLogLevel(LogLevel::DEBUG);
         $request->setMessageFormatter(
             new MessageFormatter('{method}-{uri}')
         );
 
         $mockHandler = new MockHandler(array(
+            new Response($statusCode, array(), $body),
             new Response($statusCode, array(), $body)
         ));
         $handler = HandlerStack::create($mockHandler);

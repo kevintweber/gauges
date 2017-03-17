@@ -45,13 +45,14 @@ class Request implements LoggerAwareInterface
      *
      * @param string $token     Your API token
      * @param array  $options   See Guzzle documentation (proxy, etc.)
+     * @param string $logLevel  PSR3 LogLevel. Default = LogLevel::INFO
      */
-    public function __construct(string $token, array $options = array())
+    public function __construct(string $token, array $options = array(), string $logLevel = LogLevel::INFO)
     {
         $this->client = null;
         $this->handlerStack = HandlerStack::create();
         $this->logger = null;
-        $this->logLevel = LogLevel::INFO;
+        $this->logLevel = $logLevel;
         $this->messageFormatter = new MessageFormatter();
         $this->options = array_merge(
             array('timeout' => 10),
@@ -68,20 +69,22 @@ class Request implements LoggerAwareInterface
      */
     protected function getHttpClient() : Client
     {
-        if ($this->client === null) {
-            if ($this->logger instanceof LoggerInterface) {
-                $this->handlerStack->push(
-                    Middleware::log(
-                        $this->logger,
-                        $this->messageFormatter,
-                        $this->logLevel
-                    )
-                );
-            }
-
-            $this->options['handler'] = $this->handlerStack;
-            $this->client = new Client($this->options);
+        if ($this->client instanceof Client) {
+            return $this->client;
         }
+
+        if ($this->logger instanceof LoggerInterface) {
+            $this->handlerStack->push(
+                Middleware::log(
+                    $this->logger,
+                    $this->messageFormatter,
+                    $this->logLevel
+                )
+            );
+        }
+
+        $this->options['handler'] = $this->handlerStack;
+        $this->client = new Client($this->options);
 
         return $this->client;
     }
@@ -97,23 +100,6 @@ class Request implements LoggerAwareInterface
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
-    }
-
-    public function setLogLevel(string $logLevel)
-    {
-        $logLevel = strtolower($logLevel);
-        if ($logLevel !== LogLevel::ALERT &&
-            $logLevel !== LogLevel::CRITICAL &&
-            $logLevel !== LogLevel::DEBUG &&
-            $logLevel !== LogLevel::EMERGENCY &&
-            $logLevel !== LogLevel::ERROR &&
-            $logLevel !== LogLevel::INFO &&
-            $logLevel !== LogLevel::NOTICE &&
-            $logLevel !== LogLevel::WARNING) {
-            throw new \InvalidArgumentException('Invalid log level: ' . $logLevel);
-        }
-
-        $this->logLevel = $logLevel;
     }
 
     /**
