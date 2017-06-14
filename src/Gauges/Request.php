@@ -91,6 +91,8 @@ class Request implements LoggerAwareInterface
 
     /**
      * Setter for the Guzzle HandlerStack
+     *
+     * @param HandlerStack $handlerStack
      */
     public function setHandlerStack(HandlerStack $handlerStack)
     {
@@ -104,6 +106,8 @@ class Request implements LoggerAwareInterface
 
     /**
      * Setter for the Guzzle MessageFormatter
+     *
+     * @param MessageFormatter $messageFormatter
      */
     public function setMessageFormatter(MessageFormatter $messageFormatter)
     {
@@ -127,20 +131,20 @@ class Request implements LoggerAwareInterface
      *
      * Updates and returns your information with the updates applied.
      *
-     * @param string $first_name Your first name. (Optional)
-     * @param string $last_name  Your last name. (Optional)
+     * @param string $firstName Your first name. (Optional)
+     * @param string $lastName  Your last name. (Optional)
      *
      * @return Response
      */
-    public function updateMe(string $first_name = null, string $last_name = null) : Response
+    public function updateMe(string $firstName = null, string $lastName = null) : Response
     {
         $params = array();
-        if (isset($first_name)) {
-            $params['first_name'] = $first_name;
+        if (isset($firstName)) {
+            $params['first_name'] = $firstName;
         }
 
-        if (isset($last_name)) {
-            $params['last_name'] = $last_name;
+        if (isset($lastName)) {
+            $params['last_name'] = $lastName;
         }
 
         return $this->makeApiCall('PUT', 'me', $params);
